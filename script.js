@@ -1,5 +1,17 @@
 console.log("To DO List");
 
+const url = "http://localhost:3000/list";
+const response = fetch(url)
+  .then((res) => res.json())
+  .then((data) => {
+    console.log(1, data);
+    tasks = data.todos;
+    timeArray = data.time;
+    render();
+  });
+
+console.log(2, response);
+
 function h(elementType, properties, children) {
   const el = document.createElement(elementType);
 
@@ -17,6 +29,7 @@ function h(elementType, properties, children) {
 }
 
 let tasks = [];
+console.log(3); // 2 3 1
 let timeArray = [];
 function render() {
   const ul = document.querySelector("#container");
@@ -74,6 +87,9 @@ function removeTask(index) {
   tasks.splice(index, 1);
   timeArray.splice(index, 1);
 
+  fetch("http://localhost:3000/delete?index=" + index)
+
+
   console.log(tasks);
   render(tasks);
 }
@@ -83,27 +99,50 @@ function removeTask(index) {
 // Update done button to exit the setTimeout.
 //Create a function that turns the task into red when it reaches overtime.
 function onAddTodo() {
-  let task = addTask();
-  let time = addTime();
+  let {task, time} = addTaskAndTime();
+
   tasks.push(task);
   timeArray.push(time);
-  console.log(tasks);
+  // console.log(tasks);
   render(tasks);
   console.log(tasks);
+}  
+
+
+
+
+
+function addTaskAndTime() {
+  const task = document.querySelector("#inputTask").value;
+  const time = document.querySelector("#inputTime").value;
+
+
+  fetch("http://localhost:3000/add", {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      // "Accept": "application/json, text/plain, */*",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ task: task, time: time }),
+  })
+    .then((res) => {
+      return res.json;
+    })
+    .then((data) => console.log(data))
+    .catch(function (error) {
+      console.log(`${error}`);
+    });
+
+  //TODO:TO BE CONTINUED -
+  return {task, time};
 }
 
-function addTask(text) {
-  const input = document.querySelector("#inputTask");
-  let inputValue = input.value;
-  text = inputValue;
-  return text;
-}
+// function addTime() {
 
-function addTime() {
-  const input = document.querySelector("#inputTime");
-  let inputValue = input.value;
-  return inputValue;
-}
+
+//   return inputValue;
+// }
 
 function startSignal(i) {
   document.getElementById(`task${i}`).style.color = "green";
